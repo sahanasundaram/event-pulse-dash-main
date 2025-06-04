@@ -1,6 +1,27 @@
 const BASE_URL = 'https://fast-api-project-delta.vercel.app';
 
 export const apiService = {
+
+     postlogin: async (username, password) => {
+      const response = await fetch(`${BASE_URL}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          username,
+          password,
+        }),
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || 'Login failed');
+      }
+  
+      return response.json(); // Should return token or user info
+    },
+  
   getDeveloperMetrics: async () => {
     const response = await fetch(`${BASE_URL}/developer-metrics`);
     if (!response.ok) {

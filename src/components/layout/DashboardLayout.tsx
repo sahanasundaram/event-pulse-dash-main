@@ -9,9 +9,12 @@ import {
   AlertTriangle, 
   Menu, 
   X,
-  Zap
+  Zap,
+  LogOut
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -20,6 +23,7 @@ interface DashboardLayoutProps {
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const { user, logout } = useAuth();
 
   const navigation = [
     { name: 'Overview', href: '/', icon: Activity },
@@ -47,13 +51,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               <X className="h-6 w-6 text-white" />
             </button>
           </div>
-          <SidebarContent navigation={navigation} currentPath={location.pathname} />
+          <SidebarContent navigation={navigation} currentPath={location.pathname} user={user} onLogout={logout} />
         </div>
       </div>
 
       {/* Desktop sidebar */}
       <div className="hidden lg:flex lg:w-64 lg:flex-col">
-        <SidebarContent navigation={navigation} currentPath={location.pathname} />
+        <SidebarContent navigation={navigation} currentPath={location.pathname} user={user} onLogout={logout} />
       </div>
 
       {/* Main content */}
@@ -76,6 +80,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <div className="h-2 w-2 bg-green-400 rounded-full animate-pulse"></div>
                 <span>System Online</span>
               </div>
+              <div className="text-sm text-gray-600">
+                Welcome, {user?.full_name}
+              </div>
             </div>
           </div>
         </div>
@@ -89,7 +96,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   );
 };
 
-const SidebarContent = ({ navigation, currentPath }: { navigation: any[], currentPath: string }) => (
+const SidebarContent = ({ navigation, currentPath, user, onLogout }: { 
+  navigation: any[], 
+  currentPath: string, 
+  user: any, 
+  onLogout: () => void 
+}) => (
   <div className="flex flex-grow flex-col overflow-y-auto bg-white border-r border-gray-200">
     <div className="flex flex-shrink-0 items-center px-6 py-4 border-b border-gray-200">
       <div className="flex items-center space-x-3">
@@ -127,6 +139,35 @@ const SidebarContent = ({ navigation, currentPath }: { navigation: any[], curren
         );
       })}
     </nav>
+    
+    {/* User section */}
+    <div className="border-t border-gray-200 p-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <div className="h-8 w-8 bg-blue-500 rounded-full flex items-center justify-center">
+            <span className="text-white text-sm font-medium">
+              {user?.name?.charAt(0)}
+            </span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-900 truncate">
+              {user?.name}
+            </p>
+            <p className="text-xs text-gray-500 truncate">
+              {user?.email}
+            </p>
+          </div>
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onLogout}
+          className="text-gray-400 hover:text-gray-600"
+        >
+          <LogOut className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
   </div>
 );
 
